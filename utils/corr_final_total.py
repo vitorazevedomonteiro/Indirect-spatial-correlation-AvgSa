@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def compute_final_corr(stdev_dir: Path, output_dir: Path, avgsa_periods):
+def compute_final_corr_total(stdev_dir: Path, output_dir: Path, avgsa_periods):
     """
     Combines numerator and denominator results to compute final correlations
     for all spatial/non-spatial models.
@@ -34,12 +34,12 @@ def compute_final_corr(stdev_dir: Path, output_dir: Path, avgsa_periods):
         corr_df["Bin"] = numerator_df["Bin"]
 
         # Compute normalized correlation for each model
-        for model in ["loth", "markhvida", "DuNing", "vitor", "markov"]:
+        for model in ["loth", "markhvida", "DuNing", "vitor"]:
             num_col = f"numerator_{model}"
             denom_val = denominators[f"denominator_{model}"]
             corr_df[f"Correlation_{model}"] = numerator_df[num_col] / (np.sqrt(denom_val) ** 2)
 
         # Save output
-        output_file = output_dir / f"WithinCorrSaavg2({period:.2f})ind.csv"
+        output_file = output_dir / f"TotalCorrSaavg2({period:.2f})ind.csv"
         corr_df.to_csv(output_file, index=False)
         print(f"Final correlation saved: {output_file.name}")

@@ -10,13 +10,15 @@ from models.lothbaker13 import CrossSpatialCorrLB13
 from models.markhvidaEtAl18 import CrossSpatialCorrMCB18
 from models.duning21 import CrossSpatialCorrDN21
 from models.monteiroEtAl26 import CrossSpatialCorrMAO26
-from models.jayarambaker09 import SpatialCorrJB09
+from openquake.hazardlib.cross_correlation import GodaAtkinson2009
+from openquake.hazardlib.imt import SA
+ga09_model = GodaAtkinson2009()
 
 # Import non-spatial models
 from models.bakerjayaram08 import corrBJ08
 
 
-def process_stdev_combinations(predicted_dir: Path, output_dir: Path, avgsa_periods):
+def process_stdev_combinations_total(predicted_dir: Path, output_dir: Path, avgsa_periods):
     """
     Generates stdev combinations (Period1, Period2, stdev3_period1, stdev3_period2)
     from GMM-predicted files.
@@ -24,21 +26,27 @@ def process_stdev_combinations(predicted_dir: Path, output_dir: Path, avgsa_peri
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for period in avgsa_periods:
-        file_path = predicted_dir / f"predicted_Saavg2_Sa({period:.2f}).csv"
+        file_path = predicted_dir / f"predicted_Saavg2_sa({period:.2f}).csv"
         df = pd.read_csv(file_path)
 
         # Use first RSN only (since all RSNs share same Period-Stdev structure)
         first_rsn = df['RSN'].iloc[0]
         first_rsn_data = df[df['RSN'] == first_rsn]
 
-        period_to_stdev = dict(zip(first_rsn_data['Period'], first_rsn_data['Stdev3']))
-        periods = list(period_to_stdev.keys())
+        period_to_stdev1 = dict(zip(first_rsn_data['Period'], first_rsn_data['Stdev1']))
+        period_to_stdev2 = dict(zip(first_rsn_data['Period'], first_rsn_data['Stdev2']))
+        period_to_stdev3 = dict(zip(first_rsn_data['Period'], first_rsn_data['Stdev3']))
+        periods = list(period_to_stdev3.keys())
 
         combos = itertools.product(periods, periods)
         rows = [
             {'Period1': p1, 'Period2': p2,
-             'stdev3_period1': period_to_stdev[p1],
-             'stdev3_period2': period_to_stdev[p2]}
+            'stdev1_period1': period_to_stdev1[p1],
+            'stdev1_period2': period_to_stdev1[p2],
+            'stdev2_period1': period_to_stdev2[p1],
+            'stdev2_period2': period_to_stdev2[p2],
+            'stdev3_period1': period_to_stdev3[p1],
+            'stdev3_period2': period_to_stdev3[p2]}
             for p1, p2 in combos
         ]
 
@@ -47,7 +55,7 @@ def process_stdev_combinations(predicted_dir: Path, output_dir: Path, avgsa_peri
         print(f"Created: {output_file.name}")
 
 
-def compute_correlations(stdev_dir: Path, avgsa_periods):
+def compute_correlations_total(stdev_dir: Path, avgsa_periods):
     """
     Computes correlation and numerator terms across distance bins
     for all spatial/non-spatial models.
@@ -56,36 +64,42 @@ def compute_correlations(stdev_dir: Path, avgsa_periods):
         stdev_file = stdev_dir / f"stdev_combinations_{period:.2f}.csv"
         stdev_df = pd.read_csv(stdev_file)
 
-        bin_values = np.linspace(0, 150, 151) 
+        bin_values = np.linspace(0, 150, 151)
         correlation_rows = []
 
         for _, row in stdev_df.iterrows():
             p1, p2 = row['Period1'], row['Period2']
-            s1, s2 = row['stdev3_period1'], row['stdev3_period2']
+            std2_1, std2_2 = row['stdev2_period1'], row['stdev2_period2']
+            std3_1, std3_2 = row['stdev3_period1'], row['stdev3_period2']
 
             for bin_val in bin_values:
                 rho_loth = CrossSpatialCorrLB13(p1, p2, bin_val)
                 rho_markhvida = CrossSpatialCorrMCB18(p1, p2, bin_val)
                 rho_DuNing = CrossSpatialCorrDN21(f"SA({p1})", f"SA({p2})", bin_val)
                 rho_vitor = CrossSpatialCorrMAO26(f"Sa({p1})", f"Sa({p2})", bin_val, cluster=0)
-                rho_markov = corrBJ08(p1, p2) * SpatialCorrJB09(np.max([p1, p2]), bin_val, 1)
+                imt1 = SA(p1)
+                imt2 = SA(p2)
+                rho_between = ga09_model.get_correlation(imt1, imt2)
 
                 correlation_rows.append({
                     'Bin': bin_val,
                     'Period1': p1,
                     'Period2': p2,
-                    'stdev3_period1': s1,
-                    'stdev3_period2': s2,
+                    'stdev2_period1': std2_1,
+                    'stdev2_period2': std2_2,
+                    'stdev3_period1': std3_1,
+                    'stdev3_period2': std3_2,
                     'Correlation_loth': rho_loth,
                     'Correlation_markhvida': rho_markhvida,
                     'Correlation_DuNing': rho_DuNing,
                     'Correlation_vitor': rho_vitor,
-                    'Correlation_markov': rho_markov,
-                    'numerator_loth': rho_loth * s1 * s2,
-                    'numerator_markhvida': rho_markhvida * s1 * s2,
-                    'numerator_DuNing': rho_DuNing * s1 * s2,
-                    'numerator_vitor': rho_vitor * s1 * s2,
-                    'numerator_markov': rho_markov * s1 * s2,
+                    'Correlation_between': rho_between,
+                    'numerator_between': rho_between * std2_1 * std2_2,
+                    'numerator_between': rho_between * std2_1 * std2_2,
+                    'numerator_loth': (rho_between * std2_1 * std2_2 + rho_loth * std3_1 * std3_2),
+                    'numerator_markhvida': (rho_between * std2_1 * std2_2 + rho_markhvida * std3_1 * std3_2),
+                    'numerator_DuNing': (rho_between * std2_1 * std2_2 + rho_DuNing * std3_1 * std3_2),
+                    'numerator_vitor': (rho_between * std2_1 * std2_2 + rho_vitor * std3_1 * std3_2),
                 })
 
         output_file = stdev_dir / f"correlation_sa_{period:.2f}.csv"
@@ -93,7 +107,7 @@ def compute_correlations(stdev_dir: Path, avgsa_periods):
         print(f"Correlation file saved: {output_file.name}")
 
 
-def compute_numerators(stdev_dir: Path, avgsa_periods):
+def compute_numerators_total(stdev_dir: Path, avgsa_periods):
     """
     Aggregates numerators by Bin for each model and saves as separate CSVs.
     """
@@ -105,7 +119,7 @@ def compute_numerators(stdev_dir: Path, avgsa_periods):
             name: correlation_df.groupby("Bin", as_index=False)[name].sum()
             for name in [
                 "numerator_loth", "numerator_markhvida",
-                "numerator_DuNing", "numerator_vitor", "numerator_markov"
+                "numerator_DuNing", "numerator_vitor"
             ]
         }
 
@@ -124,7 +138,7 @@ def compute_numerators(stdev_dir: Path, avgsa_periods):
         print(f"Numerator saved: {output_file.name}")
 
 
-def compute_denominators(stdev_dir: Path, avgsa_periods):
+def compute_denominators_total(stdev_dir: Path, avgsa_periods):
     """
     Computes denominators (zero-distance correlations) for all models.
     """
@@ -135,20 +149,23 @@ def compute_denominators(stdev_dir: Path, avgsa_periods):
         rows = []
         for _, row in stdev_df.iterrows():
             p1, p2 = row['Period1'], row['Period2']
-            s1, s2 = row['stdev3_period1'], row['stdev3_period2']
+            std2_1, std2_2 = row['stdev2_period1'], row['stdev2_period2']
+            std3_1, std3_2 = row['stdev3_period1'], row['stdev3_period2']
 
             rho_loth = CrossSpatialCorrLB13(p1, p2, 0)
             rho_markhvida = CrossSpatialCorrMCB18(p1, p2, 0)
             rho_DuNing = CrossSpatialCorrDN21(f"SA({p1})", f"SA({p2})", 0)
             rho_vitor = CrossSpatialCorrMAO26(f"Sa({p1})", f"Sa({p2})", 0, cluster=0)
-            rho_markov = corrBJ08(p1, p2)
-
+            imt1 = SA(p1)
+            imt2 = SA(p2)
+            rho_between = ga09_model.get_correlation(imt1, imt2)
+        
             rows.append({
-                'denominator_loth': rho_loth * s1 * s2,
-                'denominator_markhvida': rho_markhvida * s1 * s2,
-                'denominator_DuNing': rho_DuNing * s1 * s2,
-                'denominator_vitor': rho_vitor * s1 * s2,
-                'denominator_markov': rho_markov * s1 * s2,
+                'Correlation_between': rho_between,
+                'denominator_loth': (rho_between * std2_1 * std2_2 + rho_loth * std3_1 * std3_2),
+                'denominator_markhvida': (rho_between * std2_1 * std2_2 + rho_markhvida * std3_1 * std3_2),
+                'denominator_DuNing': (rho_between * std2_1 * std2_2 + rho_DuNing * std3_1 * std3_2),
+                'denominator_vitor': (rho_between * std2_1 * std2_2 + rho_vitor * std3_1 * std3_2),
             })
 
         df = pd.DataFrame(rows)

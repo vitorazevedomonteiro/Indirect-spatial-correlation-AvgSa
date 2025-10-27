@@ -6,7 +6,7 @@ from openquake.hazardlib.contexts import full_context, simple_cmaker
 from openquake.hazardlib.contexts import SitesContext, RuptureContext, DistancesContext
 from openquake.hazardlib import imt
 
-def compute_gmm_predictions(database_path: Path, output_dir: Path, avgsa_periods):
+def compute_gmm_predictions(im, database_path: Path, output_dir: Path, avgsa_periods):
     data = pd.read_csv(database_path)
     gmm = AristeidouEtAl2024()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -25,7 +25,10 @@ def compute_gmm_predictions(database_path: Path, output_dir: Path, avgsa_periods
     sids = np.arange(len(vs30))
 
     for T in avgsa_periods:
-        periods = np.linspace(0.2 * T, 2.0 * T, 10)
+        if im == 'Saavg2':
+            periods = np.linspace(0.2 * T, 2.0 * T, 10)
+        elif im == 'Saavg3':
+            periods = np.linspace(0.2 * T, 3.0 * T, 10)
         im_objs = [imt.SA(p) for p in periods]
         results = []
 
@@ -58,6 +61,6 @@ def compute_gmm_predictions(database_path: Path, output_dir: Path, avgsa_periods
                     'Stdev3': phi[i][0]
                 })
 
-        output_file = output_dir / f"predicted_AvgSa2_sa({T:.2f}).csv"
+        output_file = output_dir / f"predicted_Saavg2_sa({T:.2f}).csv"
         pd.DataFrame(results).to_csv(output_file, index=False)
         print(f"Saved: {output_file}")
