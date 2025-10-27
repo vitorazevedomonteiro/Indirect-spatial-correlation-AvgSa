@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
 ### Check the example comparison between using within-event residuals and total residuals for AvgSa(T=1.0s). See example2.py
 <p align="center">
-  <img src="Figures/comp_avgsa2_indir_within_total_1.00.png" width="600">
+  <img src="Figures/comp_avgsa2_indir_within_total_1.00.png" width="500">
   <br>
   <em>Figure 1: Comparison of indirect AvgSa(T=1.0s) correlations with total and within-event residuals.</em>
 </p>
