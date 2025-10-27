@@ -1,4 +1,4 @@
-# An indirect approach to calculate spatial correlation of AvgSa(T)
+# An indirect approach to calculate spatial correlation of $Sa_{avg}(T)$
 This repository contains scripts that implement an indirect approach for calculating the spatial correlation of AvgSa(T).
 It includes tools for comparing results obtained using different inter-Sa(T) spatial correlation models, such as Loth and Baker (2013), Markhvida et al. (2018), Du and Ning (2021), Monteiro et al. (2026) and a Markov-hypothesis-based model.
 Additionally, the repository provides comparisons between the indirect and direct formulations of spatial correlation modelling for AvgSa(T), as well as analyeses using within-event and total-residual components.
