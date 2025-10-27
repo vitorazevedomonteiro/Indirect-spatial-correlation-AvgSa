@@ -77,12 +77,16 @@ if __name__ == "__main__":
   <img src="Figures/comp_avgsa2_sa_dir_indir_0.1.png" width="45%">
   <img src="Figures/comp_avgsa2_sa_dir_indir_1.0.png" width="45%">
   <br>
-  <em>Figure 1: Comparison for T = 0.1 s (left) and T = 1.0 s (right).</em>
+  <em>Figure 1: Comparison for T = 0.1 s (left) and T = 1.0 s (right); LB13:Loth and Baker [2013]; MCB18:Markhvida et al. [2018];
+DN21:Du and Ning [2021]; MAO26:Monteiro et al. [2026].</em>
 </p>
 
 ### Check the example comparison between using within-event residuals and total residuals for AvgSa(T=1.0s). See example2.py
 <p align="center">
   <img src="Figures/comp_avgsa2_indir_within_total_1.00.png" width="500">
   <br>
-  <em>Figure 1: Comparison of indirect AvgSa(T=1.0s) correlations with total and within-event residuals.</em>
+  <em>Figure 1: Comparison of indirect approach for spatial correlation for Saavg2(1.0) using within-
+event (solid lines) and total-event (dashed lines) using different inter-IM spatial correlation models.
+LB13:Loth and Baker [2013], MCB18:Markhvida et al. [2018],DN21:Du and Ning [2021]:Monteiro
+et al. [2026].</em>
 </p>
