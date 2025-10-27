@@ -11,7 +11,7 @@ from models.jayarambaker09 import SpatialCorrJB09
 
 # --- Setup ---
 my_path = Path(__file__).parent
-chosen_period = 1.00
+chosen_period = 0.1
 periods = np.linspace(0.2 * chosen_period, 2.0 * chosen_period, 10)
 h_model = np.linspace(0, 150, 151)
 
@@ -52,6 +52,9 @@ for name, (_, color) in models.items():
     for curve in model_curves[name]:
         plt.plot(h_model, curve, color=color, lw=1, alpha=0.6)
 
+plt.plot([], [], color='lightgray', linewidth=1, label='Sa(T) curves', alpha=0.6)
+        
+
 # Plot indirect correlations
 plt.plot(df['Bin'], df['Correlation_loth'], label='Indirect - LB13', color='r', lw=2)
 plt.plot(df['Bin'], df['Correlation_markhvida'], label='Indirect - MCB18', color='g', lw=2)
@@ -67,8 +70,14 @@ plt.xlabel('Distance, h [km]', fontsize=18)
 plt.ylabel(fr'$\rho_{{\ln Sa_{{avg2}}({chosen_period})_n,\ln Sa_{{avg2}}({chosen_period})_m}}$', fontsize=26)
 plt.xlim(0, 150); plt.ylim(0, 1)
 plt.xticks(fontsize=14); plt.yticks(fontsize=14)
-plt.grid(True); plt.legend(fontsize=14); plt.tight_layout()
+plt.grid(True)
+plt.legend(fontsize=14)
+plt.tight_layout()
+
 
 # Save or show
+figures_folder = my_path / "Figures"
+figures_folder.mkdir(parents=True, exist_ok=True)
+plt.savefig(figures_folder / f"comp_avgsa2_sa_dir_indir_{chosen_period}.pdf",
+            dpi=300, bbox_inches='tight')
 plt.show()
-# plt.savefig(my_path / f"outputs_within/comp_avgsa2_sa_dir_indir_{chosen_period}.pdf", dpi=300, bbox_inches='tight')
