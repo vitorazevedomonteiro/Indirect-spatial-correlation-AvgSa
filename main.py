@@ -20,7 +20,7 @@ def main_within():
     corr_output_dir = base_path / "outputs_within" / f"WithinCorr_{im}_ind"
 
 
-    avgsa_periods = [1.0] 
+    avgsa_periods = [0.1, 1.0] 
     # add the periods that you want, but be aware of the GMM period limits!
 
     print("\n=== STEP 1: GMM PREDICTIONS ===")
@@ -67,4 +67,4 @@ def main_total():
 
 
 if __name__ == "__main__":
-    main_total()
+    main_within()
