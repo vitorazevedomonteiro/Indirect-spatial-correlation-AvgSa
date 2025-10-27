@@ -11,7 +11,8 @@ Monteiro, V.A, and O’Reilly, G.J. (2026) ‘Notes on spatial correlation for a
 ### Define which residual-type you want and select the period T for AvgSa(T). See main.py
 
 ```python
-#-------------- Function to compute Indirect approach of spatial-corr for AvgSa(T) with within-event residuals --------------# 
+#-------------- Function to compute Indirect approach of \
+    spatial-corr for AvgSa(T) with within-event residuals --------------# 
 def main_within():
     im = 'Saavg2' # could be 'Saavg2' or 'Saavg3
     base_path = Path(__file__).parent
@@ -38,7 +39,8 @@ def main_within():
 
     print("\nAll processing complete!")
     
-#-------------- Function to compute Indirect approach of spatial-corr for AvgSa(T) with total-event residuals --------------#
+#-------------- Function to compute Indirect approach of \
+    spatial-corr for AvgSa(T) with total-event residuals --------------#
 def main_total():
     im = 'Saavg2' # could be 'Saavg2' or 'Saavg3
     base_path = Path(__file__).parent
