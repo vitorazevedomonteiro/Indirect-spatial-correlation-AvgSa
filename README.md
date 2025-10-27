@@ -73,7 +73,7 @@ if __name__ == "__main__":
 ```
 
 ### Check the example comparison of indirect approach for two specific periods of AvgSa(T), (T=0.1s and T=1.0s) using within-event residuals. See example1.py
-![Comparison of correlations](Figures/comp_avgsa2_sa_dir_indir_0.1)
+![Comparison of correlations](Figures/comp_avgsa2_sa_dir_indir_0.1.pdf)
 
 ### Check the example comparison between using within-event residuals and total residuals for AvgSa(T=1.0s). See example2.py
 
