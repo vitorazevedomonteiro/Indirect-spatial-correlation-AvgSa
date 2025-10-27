@@ -1,17 +1,17 @@
 # An indirect approach to calculate spatial correlation of $Sa_{avg}(T)$
-This repository contains scripts that implement an indirect approach for calculating the spatial correlation of AvgSa(T).
+This repository contains scripts that implement an indirect approach for calculating the spatial correlation of $Sa_{avg}(T)$.
 It includes tools for comparing results obtained using different inter-Sa(T) spatial correlation models, such as Loth and Baker (2013), Markhvida et al. (2018), Du and Ning (2021), Monteiro et al. (2026) and a Markov-hypothesis-based model.
-Additionally, the repository provides comparisons between the indirect and direct formulations of spatial correlation modelling for AvgSa(T), as well as analyeses using within-event and total-residual components.
+Additionally, the repository provides comparisons between the indirect and direct formulations of spatial correlation modelling for $Sa_{avg}(T)$, as well as analyeses using within-event and total-residual components.
 
 For more detail please see:
 # Reference
 Monteiro, V.A, and O’Reilly, G.J. (2026) ‘Notes on spatial correlation for average spectral acceleration: direct and indirect approaches’, (under review)
 
 # How to use
-### Define which residual-type you want and select the period T for AvgSa(T). See main.py
+### Define which residual-type you want and select the period T for $Sa_{avg}(T)$. See main.py
 
 ```python
-#-------------- Indirect approach of spatial-corr for AvgSa(T) with within-event residuals --------------# 
+#-------------- Indirect approach of spatial-corr for Saavg(T) with within-event residuals --------------# 
 def main_within():
     im = 'Saavg2' # could be 'Saavg2' or 'Saavg3
     base_path = Path(__file__).parent
@@ -38,7 +38,7 @@ def main_within():
 
     print("\nAll processing complete!")
     
-#-------------- Indirect approach of spatial-corr for AvgSa(T) with total-event residuals --------------#
+#-------------- Indirect approach of spatial-corr for Saavg(T) with total-event residuals --------------#
 def main_total():
     im = 'Saavg2' # could be 'Saavg2' or 'Saavg3
     base_path = Path(__file__).parent
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
 ```
 
-### Check the example comparison of indirect approach for two specific periods of AvgSa(T), (T=0.1s and T=1.0s) using within-event residuals. See example1.py
+### Check the example comparison of indirect approach for two specific periods of $Sa_{avg}(T)$, (T=0.1s and T=1.0s) using within-event residuals. See example1.py
 <p align="center">
   <img src="Figures/comp_avgsa2_sa_dir_indir_0.1.png" width="45%">
   <img src="Figures/comp_avgsa2_sa_dir_indir_1.0.png" width="45%">
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 DN21:Du and Ning [2021]; MAO26:Monteiro et al. [2026].</em>
 </p>
 
-### Check the example comparison between using within-event residuals and total residuals for AvgSa(T=1.0s). See example2.py
+### Check the example comparison between using within-event residuals and total residuals for $Sa_{avg}(T=1.0s)$. See example2.py
 <p align="center">
   <img src="Figures/comp_avgsa2_indir_within_total_1.00.png" width="500">
   <br>
